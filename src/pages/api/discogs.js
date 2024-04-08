@@ -1,9 +1,31 @@
 import dotenv from 'dotenv';
+import twilio from 'twilio';
+
 dotenv.config();
 
 const githubToken = process.env.GITHUB_TOKEN;
 const repoOwner = process.env.REPO_OWNER;
 const repoName = process.env.REPO_NAME;
+const accountSid = process.env.TWILIO_ACCOUNT_SID;
+const authToken = process.env.TWILIO_AUTH_TOKEN;
+const client = twilio(accountSid, authToken);
+
+const from = process.env.TWILIO_WHATSAPP_FROM; // Your Twilio WhatsApp number
+const to = process.env.TWILIO_WHATSAPP_TO; // The recipient's number including 'whatsapp:'
+
+async function sendWhatsAppMessage(message) {
+  try {
+    const message = await client.messages.create({
+      body: message,
+      from,
+      to,
+    });
+    console.log(`Message sent: ${message.sid}`);
+  } catch (error) {
+    console.error(`Failed to send message: ${error.message}`);
+  }
+}
+
 
 async function getList(listId) {
   const options = {
@@ -96,7 +118,7 @@ export default async function handler(req, res) {
 
     console.log(releases);
 
-    for (const release of releases.slice(0,1)) {
+    for (const release of releases) {
       const releaseId = release.id; 
       const releaseDetails = await getRelease(releaseId);
 
@@ -115,6 +137,8 @@ export default async function handler(req, res) {
         if (!issueExists) {
           await createIssue(releaseDetails.title, releaseDetails.uri);
           // await sendWhatsAppMessage(releaseId);
+
+          sendWhatsAppMessage(`New drop for ${releaseDetails.title} ${releaseDetails.uri}`)
         } else {
           console.log('already there')
         }
