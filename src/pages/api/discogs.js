@@ -1,4 +1,9 @@
-import axios from "axios";
+import dotenv from 'dotenv';
+dotenv.config();
+
+const githubToken = process.env.GITHUB_TOKEN;
+const repoOwner = process.env.REPO_OWNER;
+const repoName = process.env.REPO_NAME;
 
 async function getList(listId) {
   const options = {
@@ -19,6 +24,63 @@ async function getRelease(releaseId) {
   return fetch(`https://api.discogs.com/releases/${releaseId}`, options).then(
     (response) => response.json()
   );
+}
+
+async function createIssue(title, body) {
+  const url = `https://api.github.com/repos/${repoOwner}/${repoName}/issues`;
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${githubToken}`,
+      'Accept': 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ title, body }),
+  });
+
+  if (!response.ok) {
+    const errorMsg = await response.text();
+    throw new Error(`GitHub API responded with a status of ${response.status}: ${errorMsg}`);
+  }
+
+  const issue = await response.json();
+  console.log(`Issue created: ${issue.html_url}`);
+}
+
+async function listOpenIssues() {
+  const url = `https://api.github.com/repos/${repoOwner}/${repoName}/issues?state=open`;
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${githubToken}`,
+      'Accept': 'application/vnd.github.v3+json',
+    },
+  });
+
+  if (!response.ok) {
+    const errorMsg = await response.text();
+    throw new Error(`GitHub API responded with a status of ${response.status}: ${errorMsg}`);
+  }
+
+  const issues = await response.json();
+  if (issues.length === 0) {
+    console.log('No open issues found.');
+    return;
+  }
+
+  console.log('Open issues:');
+  issues.forEach(issue => {
+    console.log(`- ${issue.title} (#${issue.number}): ${issue.html_url}`);
+  });
+
+  return issues;
+}
+
+async function checkGitHubIssue(title) {
+  const issues = await listOpenIssues();
+  const issue = issues?.find(issue => issue.title === title)
+
+  return !!issue;
 }
 
 export default async function handler(req, res) {
@@ -48,11 +110,13 @@ export default async function handler(req, res) {
       const isCheaper = lowest_price <= target_price; // Placeholder logic
 
       if (isCheaper) {
-        const issueExists = await checkGitHubIssue(releaseId);
+        const issueExists = await checkGitHubIssue(releaseDetails.title);
 
         if (!issueExists) {
-          await createGitHubIssue(releaseId);
-          await sendWhatsAppMessage(releaseId);
+          await createIssue(releaseDetails.title, releaseDetails.uri);
+          // await sendWhatsAppMessage(releaseId);
+        } else {
+          console.log('already there')
         }
       }
     }
