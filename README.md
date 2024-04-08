@@ -1,36 +1,72 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Discogs Price Alert App
 
-## Getting Started
+## Overview
+This Next.js application monitors a specified list of releases on Discogs. When the price of a release drops below a predetermined threshold, it triggers a series of actions that culminates in sending a notification via WhatsApp. This allows users to keep track of price drops on desired records without having to manually check the site.
 
-First, run the development server:
+### How It Works
+The application follows this workflow:
+- Fetches a list of releases from a specified Discogs list.
+- Checks if the lowest offer for each release is cheaper than the price specified in the comments.
+- If the offer is cheaper and no related GitHub issue exists, it creates an issue.
+- Triggers a Zapier workflow that sends a notification to a WhatsApp number.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+```mermaid
+flowchart TD
+    A[Get list] --> R[Get release]
+    R --> B[Is lowest offer cheaper than comment?]
+    B --> I[Check if issue already exists?]
+    I -- No --> C[Create a github issue]
+    C --> D[Trigger zappier]
+    D --> W[Send whatsapp]
+    B -- No ----> E[End]
+    W --> E
+    I -- Yes --> E
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Key Features
+- **Discogs Integration:** Fetches release data directly from Discogs.
+- **Price Monitoring:** Automatically monitors and compares release prices.
+- **GitHub Issue Tracking:** Creates issues for tracking price drops.
+- **WhatsApp Notifications:** Sends alerts via WhatsApp for immediate notification.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## Setup
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+### Prerequisites
+- Node.js installed on your local machine.
+- A Vercel account for deployment.
+- A GitHub account for issue tracking.
+- A Zapier account to set up the WhatsApp notification workflow.
+- A Twilio account with WhatsApp sandbox configured for sending messages.
 
-## Learn More
+### Installation
+1. **Clone the Repository**
+   ```
+   git clone https://github.com/yourusername/discogs-price-alert-app.git
+   cd discogs-price-alert-app
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+2. **Install Dependencies**
+   ```
+   npm install
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. **Configure Environment Variables**
+   Rename `.env.example` to `.env` and update it with your credentials for Discogs, GitHub, Zapier, and Twilio.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+### Running Locally
+```
+npm run dev
+```
 
-## Deploy on Vercel
+### Deployment
+Deploy the application to Vercel using the Vercel CLI or through the Vercel GitHub integration for automatic deployments.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Usage
+- **Monitoring a List:** The app is pre-configured to monitor the [Active hunt list on Discogs](https://www.discogs.com/lists/Active-hunt/1503851). You can change this by modifying the source code to target a different list.
+- **Receiving Notifications:** Once set up, the app runs automatically. Ensure your WhatsApp number is configured correctly in Zapier to receive notifications.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+## Contributing
+Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) for details on how to submit pull requests, file issues, and adhere to our code of conduct.
+
+## License
+This project is licensed under the [MIT License](LICENSE).
