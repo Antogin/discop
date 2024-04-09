@@ -10,8 +10,8 @@ const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = twilio(accountSid, authToken);
 
-const from = process.env.TWILIO_WHATSAPP_FROM; // Your Twilio WhatsApp number
-const to = process.env.TWILIO_WHATSAPP_TO; // The recipient's number including 'whatsapp:'
+const from = process.env.TWILIO_WHATSAPP_FROM;
+const to = process.env.TWILIO_WHATSAPP_TO; 
 
 async function sendWhatsAppMessage(message) {
   try {
@@ -120,7 +120,7 @@ export default async function handler(req, res) {
       const releaseDetails = await getRelease(releaseId);
       const lowest_price = releaseDetails.lowest_price;
       const target_price = Number(release.comment);
-      console.log({title: releaseDetails.title, target_price, lowest_price});
+      console.log({ title: releaseDetails.title, target_price, lowest_price});
       // Simplified logic to determine if the lowest offer is cheaper
       const isCheaper = lowest_price <= target_price; // Placeholder logic
 
@@ -136,33 +136,6 @@ export default async function handler(req, res) {
         }
       }
     }));
-
-    // for (const release of releases) {
-    //   const releaseId = release.id; 
-    //   const releaseDetails = await getRelease(releaseId);
-
-
-    //   const lowest_price = releaseDetails.lowest_price;
-    //   const target_price = Number(release.comment);
-
-    //   console.log({target_price, lowest_price});
-
-    //   // Simplified logic to determine if the lowest offer is cheaper
-    //   const isCheaper = lowest_price <= target_price; // Placeholder logic
-
-    //   if (isCheaper) {
-    //     const issueExists = await checkGitHubIssue(releaseDetails.title);
-
-    //     if (!issueExists) {
-    //       await createIssue(releaseDetails.title, releaseDetails.uri);
-    //       // await sendWhatsAppMessage(releaseId);
-
-    //       sendWhatsAppMessage(`New drop for ${releaseDetails.title} ${releaseDetails.uri}`)
-    //     } else {
-    //       console.log('already there')
-    //     }
-    //   }
-    // }
 
     res.status(200).json({ message: "Process completed" });
   } catch (error) {
