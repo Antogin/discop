@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "discogs-marketplace-js": "^2.0.0",
     "dotenv": "^16.4.5",
     "next": "14.0.1",
     "react": "^18",
