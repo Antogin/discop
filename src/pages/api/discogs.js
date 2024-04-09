@@ -13,10 +13,10 @@ const client = twilio(accountSid, authToken);
 const from = process.env.TWILIO_WHATSAPP_FROM;
 const to = process.env.TWILIO_WHATSAPP_TO; 
 
-async function sendWhatsAppMessage(message) {
+async function sendWhatsAppMessage(messageTxt) {
   try {
     const message = await client.messages.create({
-      body: message,
+      body: messageTxt,
       from,
       to,
     });
@@ -111,6 +111,9 @@ export default async function handler(req, res) {
     return res.status(405).end(); // Method Not Allowed
   }
 
+  console.log('>>>>>>>>>>>');
+
+
   try {
     const listResponse = await getList("1503851");
     const releases = listResponse.items.filter((el) => el.comment.length); // Simplification, adjust based on actual API response structure
@@ -121,8 +124,7 @@ export default async function handler(req, res) {
       const lowest_price = releaseDetails.lowest_price;
       const target_price = Number(release.comment);
       console.log({ title: releaseDetails.title, target_price, lowest_price});
-      // Simplified logic to determine if the lowest offer is cheaper
-      const isCheaper = lowest_price <= target_price; // Placeholder logic
+      const isCheaper = lowest_price <= target_price; 
 
       if (isCheaper) {
         const issueExists = await checkGitHubIssue(releaseDetails.title);
