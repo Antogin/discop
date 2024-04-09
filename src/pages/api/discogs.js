@@ -112,7 +112,6 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Fetch the list of releases (simplified, assuming a list of release IDs)
     const listResponse = await getList("1503851");
     const releases = listResponse.items.filter((el) => el.comment.length); // Simplification, adjust based on actual API response structure
 
