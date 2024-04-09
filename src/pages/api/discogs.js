@@ -116,18 +116,12 @@ export default async function handler(req, res) {
     const listResponse = await getList("1503851");
     const releases = listResponse.items.filter((el) => el.comment.length); // Simplification, adjust based on actual API response structure
 
-    console.log(releases);
-
-    for (const release of releases) {
+    await Promise.all(releases.map(async release => {
       const releaseId = release.id; 
       const releaseDetails = await getRelease(releaseId);
-
-
       const lowest_price = releaseDetails.lowest_price;
       const target_price = Number(release.comment);
-
-      console.log({target_price, lowest_price});
-
+      console.log({title: releaseDetails.title, target_price, lowest_price});
       // Simplified logic to determine if the lowest offer is cheaper
       const isCheaper = lowest_price <= target_price; // Placeholder logic
 
@@ -136,14 +130,40 @@ export default async function handler(req, res) {
 
         if (!issueExists) {
           await createIssue(releaseDetails.title, releaseDetails.uri);
-          // await sendWhatsAppMessage(releaseId);
 
           sendWhatsAppMessage(`New drop for ${releaseDetails.title} ${releaseDetails.uri}`)
         } else {
           console.log('already there')
         }
       }
-    }
+    }));
+
+    // for (const release of releases) {
+    //   const releaseId = release.id; 
+    //   const releaseDetails = await getRelease(releaseId);
+
+
+    //   const lowest_price = releaseDetails.lowest_price;
+    //   const target_price = Number(release.comment);
+
+    //   console.log({target_price, lowest_price});
+
+    //   // Simplified logic to determine if the lowest offer is cheaper
+    //   const isCheaper = lowest_price <= target_price; // Placeholder logic
+
+    //   if (isCheaper) {
+    //     const issueExists = await checkGitHubIssue(releaseDetails.title);
+
+    //     if (!issueExists) {
+    //       await createIssue(releaseDetails.title, releaseDetails.uri);
+    //       // await sendWhatsAppMessage(releaseId);
+
+    //       sendWhatsAppMessage(`New drop for ${releaseDetails.title} ${releaseDetails.uri}`)
+    //     } else {
+    //       console.log('already there')
+    //     }
+    //   }
+    // }
 
     res.status(200).json({ message: "Process completed" });
   } catch (error) {
