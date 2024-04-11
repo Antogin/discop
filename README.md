@@ -53,6 +53,11 @@ flowchart TD
 3. **Configure Environment Variables**
    Rename `.env.example` to `.env` and update it with your credentials for Discogs, GitHub, Zapier, and Twilio.
 
+### Whatsapp message 
+I use zapier to send messages
+![Issue to Whatsapp - draft](https://github.com/Antogin/discop/assets/19547805/7421a6cd-8805-47c9-8b07-2017be29fe8b)
+
+
 ### Running Locally
 ```
 npm run dev
