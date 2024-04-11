@@ -1,32 +1,10 @@
 import dotenv from 'dotenv';
-import twilio from 'twilio';
 
 dotenv.config();
 
 const githubToken = process.env.GITHUB_TOKEN;
 const repoOwner = process.env.REPO_OWNER;
 const repoName = process.env.REPO_NAME;
-const accountSid = process.env.TWILIO_ACCOUNT_SID;
-const authToken = process.env.TWILIO_AUTH_TOKEN;
-const client = twilio(accountSid, authToken);
-
-const from = process.env.TWILIO_WHATSAPP_FROM;
-const to = process.env.TWILIO_WHATSAPP_TO; 
-
-console.log('xxxx', process.env);
-async function sendWhatsAppMessage(messageTxt) {
-  try {
-    const message = await client.messages.create({
-      body: messageTxt,
-      from,
-      to,
-    });
-    console.log(`Message sent: ${message.sid}`);
-  } catch (error) {
-    console.error(`Failed to send message: ${error.message}`);
-  }
-}
-
 
 async function getList(listId) {
   const options = {
@@ -111,9 +89,6 @@ export default async function handler(req, res) {
   if (req.method !== "GET") {
     return res.status(405).end(); // Method Not Allowed
   }
-
-  console.log('ENV ', process.env);
-
 
   try {
     const listResponse = await getList("1503851");
